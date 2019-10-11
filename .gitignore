@@ -21,4 +21,5 @@ erl_crash.dump
 
 .mnesia
 .idea
+config/.env
 

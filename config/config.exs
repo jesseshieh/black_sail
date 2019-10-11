@@ -18,7 +18,7 @@ import Config
 #
 
 config :nostrum,
-  token: "NjMxODk4OTg3ODMzNTg5Nzcw.XZ9j0Q.KML5qnEXmIfaiqCG9yFRfjqYHJ8",
+  token: System.get_env("BOT_TOKEN"),
   num_shards: :auto
 
 config :nosedrum,
