@@ -1,4 +1,4 @@
 # BlackSail
 
-**TODO: Add description**
+**Amazing bot on amazing language**
 
