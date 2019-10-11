@@ -1,17 +1,19 @@
 defmodule Bot.VoiceMembers do
   alias Nostrum.{Api}
+  alias Nostrum.Struct.Guild.Member
+  alias Nostrum.Struct.Guild
 
   use Memento.Table,
       attributes: [:user_id, :channel_id, :guild_id],
       type: :ordered_set
 
   def user_entered_channel(%Bot.VoiceMembers{} = data) do
-    x = Memento.transaction fn ->
+    x = Memento.transaction(fn ->
       Memento.Query.read(Bot.VoiceMembers, data.user_id)
       Memento.Query.delete(Bot.VoiceMembers, data.user_id)
       Memento.Query.write(data)
-    end
-    get_channel_members(data)
+    end)
+    |> IO.inspect(label: "User entered channel")
   end
 
   def user_left_channel(%Bot.VoiceMembers{ channel_id: nil } = data) do
@@ -26,8 +28,7 @@ defmodule Bot.VoiceMembers do
   def get_channel_members_by_user_id(user_id) do
     case Memento.transaction(fn -> Memento.Query.read(Bot.VoiceMembers, user_id) end) do
       {:ok, %Bot.VoiceMembers{} = data} -> get_channel_members(data)
-      {:ok, nil} -> []
-      err -> err
+      e -> []
     end
   end
 
@@ -46,11 +47,20 @@ defmodule Bot.VoiceMembers do
     {:ok, x} = Memento.transaction fn ->
       Memento.Query.select(Bot.VoiceMembers, guards)
     end
+    guild = Nostrum.Cache.GuildCache.get(guild_id)
     x
     |> Enum.map(fn x ->
-      case Api.get_guild_member(guild_id, x.user_id) do
-        {:ok, member} -> member
-        _ -> nil
+      case guild do
+        {:ok, %Guild{} = guild} ->
+          case Enum.find(guild.members, fn { id, member } -> id == x.user_id end) do
+            {id, %Member{} = member} -> member
+            _ -> nil
+          end
+        _ ->
+          case Api.get_guild_member(guild_id, x.user_id) do
+            {:ok, member} -> member
+            _ -> nil
+          end
       end
     end)
     |> Enum.filter(fn x -> x != nil end)

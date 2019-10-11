@@ -57,6 +57,8 @@ defmodule Bot.Cogs.Party do
   @impl true
   def predicates, do: [&Predicates.guild_only/1]
 
+  def command, do: @command
+
   @impl true
   def command(%{ guild_id: guild_id } = msg, _args) do
     IO.inspect(msg, label: "Message")
@@ -69,14 +71,22 @@ defmodule Bot.Cogs.Party do
             delete_empty_voice_channels_with_same_name(channel_name_for_member, guild_id)
             %Channel{} = channel = create_voice_channel_for_member(guild_id, usernameWithDiscriminator)
             invite = Api.create_channel_invite!(channel.id, max_age: 1200)
-            Api.create_message(channel_id, embed: message_if_not_in_voice_channel(msg.author.id, invite))
+            Api.create_message(channel_id, content: "<@#{msg.author.id}>", embed: message_if_not_in_voice_channel(msg.author.id, invite))
+            Api.delete_message(channel_id, msg.id)
           else
             voice_channel_id = Bot.VoiceMembers.get_channel_id_by_user_id(msg.author.id)
             unless voice_channel_id == nil do
               invite = Api.create_channel_invite!(voice_channel_id, max_age: 1200)
               reply = Api.create_message!(channel_id, embed: create_party_message(msg, invite))
               PartySearchParticipants.delete_party_messages_for_voice_channel(voice_channel_id)
-              PartySearchParticipants.write_party_search_message(reply.id, voice_channel_id, guild_id, invite.code, channel_id)
+              PartySearchParticipants.write_party_search_message(%PartySearchParticipants{
+                message_id: reply.id,
+                voice_channel_id: voice_channel_id,
+                guild_id: guild_id,
+                invite_code: invite.code,
+                text_channel_id: channel_id,
+                comment: extract_comment(msg.content)
+              })
               Api.delete_message!(channel_id, msg.id)
             else
               reply = Api.create_message!(channel_id, "<@#{msg.author.id}>, пожалуйста, перейдите в свободный голосовой канал или введите команду заново")
@@ -100,18 +110,16 @@ defmodule Bot.Cogs.Party do
     |> IO.inspect(label: "Unhandled message")
   end
 
-  def create_party_message(%{ guild_id: guild_id } = msg, %Invite{} = invite) do
-    members = Bot.VoiceMembers.get_channel_members_by_user_id(msg.author.id)
-    IO.inspect(invite, label: "Invite")
+  def create_party_message(%{ guild_id: guild_id } = msg, %Invite{ channel: %{ id: channel_id } } = invite) do
+    members = Bot.VoiceMembers.get_channel_members(%Bot.VoiceMembers{ channel_id: channel_id, guild_id: guild_id })
     placesLeft = @user_limit - length(members)
     title = if placesLeft != 0, do: "Ищу +#{placesLeft}", else: "Пати собрано"
     embed = %Embed{}
             |> put_title(title)
-            |> get_comment(msg.content)
     embed_description = Enum.reduce(members, "", fn %Member{ user: %{ id: id } }, acc ->
       acc <> "<@#{id}> Player \n"
     end)
-    embed_description = embed_description <> "\n\nПерейти: https://discord.gg/#{invite.code}"
+    embed_description = extract_comment(msg.content) <> "\n" <> embed_description <> "\n\nПерейти: https://discord.gg/#{invite.code}"
     embed
     |> put_description(embed_description)
   end
@@ -121,8 +129,18 @@ defmodule Bot.Cogs.Party do
       "!#{@command} " <> comment ->
         embed
         |> put_description("Коммент: #{comment}")
+        |> IO.inspect(label: "Embed with comment")
       _ ->
+        IO.inspect(content, label: "Content message for comment")
         embed
+    end
+  end
+
+  def extract_comment(content) do
+    IO.inspect(content, label: "Content is")
+    case content do
+      "!#{@command} " <> comment -> "Комментарий: #{comment}\n"
+      _ -> ""
     end
   end
 
