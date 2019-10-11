@@ -25,6 +25,7 @@ defmodule Bot.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:distillery, "~> 2.1"},
       {:nosedrum, "~> 0.2"},
       {:nostrum, "~> 0.4"},
       {:memento, "~> 0.3.1"},
