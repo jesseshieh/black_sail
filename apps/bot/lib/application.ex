@@ -14,6 +14,7 @@ defmodule Bot.Application do
       Bot.ConsumerSupervisor
     ]
     Memento.Table.create(Bot.VoiceMembers)
+    Memento.Table.create(Bot.PartySearchParticipants)
     options = [strategy: :rest_for_one, name: Bot.Supervisor]
     Supervisor.start_link(children, options)
   end

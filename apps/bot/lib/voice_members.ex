@@ -15,11 +15,12 @@ defmodule Bot.VoiceMembers do
   end
 
   def user_left_channel(%Bot.VoiceMembers{ channel_id: nil } = data) do
-    data
-    x = Memento.transaction fn ->
-      Memento.Query.read(Bot.VoiceMembers, data.user_id)
+    Memento.transaction fn ->
+      channel_data = Memento.Query.read(Bot.VoiceMembers, data.user_id)
       Memento.Query.delete(Bot.VoiceMembers, data.user_id)
+      channel_data
     end
+    |> IO.inspect(label: "User left channel")
   end
 
   def get_channel_members_by_user_id(user_id) do
@@ -55,11 +56,8 @@ defmodule Bot.VoiceMembers do
     |> Enum.filter(fn x -> x != nil end)
   end
 
-  def ensure_voice_channel_empty?(channel_id, guild_id) do
+  def is_voice_channel_empty?(channel_id, guild_id) do
     me = Nostrum.Cache.Me.get()
-    :ok = Api.update_voice_state(guild_id, channel_id, true, true)
-    :timer.sleep(200)
-    Api.update_voice_state(guild_id, nil)
     case get_channel_members_by_user_id(me.id) do
       x when is_list(x) and length(x) > 0 -> false
       _ -> true

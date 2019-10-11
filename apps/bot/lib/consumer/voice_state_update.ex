@@ -5,7 +5,10 @@ defmodule Bot.Consumer.VoiceStateUpdate do
   end
 
   def handle(%Bot.VoiceMembers{ channel_id: nil } = data) do
-    Bot.VoiceMembers.user_left_channel(data)
+    case Bot.VoiceMembers.user_left_channel(data) do
+      {:ok, x} when x !== nil -> Bot.PartySearchParticipants.handle_voice_update(x.channel_id, x.guild_id)
+      _ -> IO.inspect("Channel that user has left is unknown")
+    end
   end
 
   def handle(data) do

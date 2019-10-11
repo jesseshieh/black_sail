@@ -2,7 +2,7 @@ defmodule Bot.Consumer.Ready do
   @moduledoc "Handles the `READY` event."
 
   alias Nosedrum.Storage.ETS, as: CommandStorage
-  alias Bot.{Cogs}
+  alias Bot.{Cogs, Helpers}
   alias Nostrum.Api
   alias Nosedrum.{Converters}
 
@@ -26,6 +26,10 @@ defmodule Bot.Consumer.Ready do
   def handle(data) do
     :ok = load_commands()
     IO.puts("⚡ Logged in and ready, seeing `#{length(data.guilds)}` guilds.")
+    Enum.each(data.guilds, fn %{ id: guild_id } ->
+      IO.inspect(guild_id, label: "Deleting guild game channels")
+      Helpers.delete_game_channels_without_parent(guild_id)
+    end)
     :ok = Api.update_status(:online, "you | !help", 3)
   end
 
