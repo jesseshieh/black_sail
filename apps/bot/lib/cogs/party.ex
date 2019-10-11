@@ -101,10 +101,13 @@ defmodule Bot.Cogs.Party do
   end
 
   def create_party_message(%{ guild_id: guild_id } = msg, %Invite{} = invite) do
-    embed = %Embed{}
-            |> put_title("Ищу")
-            |> get_comment(msg.content)
     members = Bot.VoiceMembers.get_channel_members_by_user_id(msg.author.id)
+    IO.inspect(invite, label: "Invite")
+    placesLeft = @user_limit - length(members)
+    title = if placesLeft != 0, do: "Ищу +#{placesLeft}", else: "Пати собрано"
+    embed = %Embed{}
+            |> put_title(title)
+            |> get_comment(msg.content)
     embed_description = Enum.reduce(members, "", fn %Member{ user: %{ id: id } }, acc ->
       acc <> "<@#{id}> Player \n"
     end)
