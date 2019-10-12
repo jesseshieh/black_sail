@@ -18,9 +18,33 @@ defmodule Bot.Consumer.Ready do
     ## Bot meta commands
     "help" => Cogs.Help,
     "party" => Cogs.Party,
+    "register" => Cogs.Register,
+    "update" => Cogs.Update,
   }
 
-  @aliases %{}
+  @aliases %{
+    "рудз" => Map.fetch!(@commands, "help"),
+    "h" => Map.fetch!(@commands, "help"),
+
+    "зфкен" => Map.fetch!(@commands, "party"),
+    "p" => Map.fetch!(@commands, "party"),
+    "пати" => Map.fetch!(@commands, "party"),
+    "поиск" => Map.fetch!(@commands, "party"),
+
+    "r" => Map.fetch!(@commands, "register"),
+    "reg" => Map.fetch!(@commands, "register"),
+    "купшыеук" => Map.fetch!(@commands, "register"),
+    "куп" => Map.fetch!(@commands, "register"),
+    "рег" => Map.fetch!(@commands, "register"),
+
+    "u" => Map.fetch!(@commands, "update"),
+    "гзвфеу" => Map.fetch!(@commands, "update"),
+    "stats" => Map.fetch!(@commands, "update"),
+    "ыефеы" => Map.fetch!(@commands, "update"),
+    "статс" => Map.fetch!(@commands, "update"),
+  }
+
+  def commands, do: @commands
 
   @spec handle(map()) :: :ok
   def handle(data) do
