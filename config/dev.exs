@@ -8,6 +8,8 @@ use Mix.Config
 # with webpack to recompile .js and .css sources.
 config :backend, BackendWeb.Endpoint,
   http: [port: 4000],
+  url: [host: "localhost", port: 4000],
+  server: true,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

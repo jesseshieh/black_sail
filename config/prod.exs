@@ -27,5 +27,3 @@ config :backend, BackendWeb.Endpoint,
        cache_static_manifest: "priv/static/cache_manifest.json",
        server: true
 
-config :gen_tcp_accept_and_close, port: 4000
-config :gen_tcp_accept_and_close, ip: {0, 0, 0, 0}
