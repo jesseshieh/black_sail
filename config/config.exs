@@ -30,7 +30,7 @@ config :phoenix, :json_library, Jason
 
 # Configures the endpoint
 config :backend, BackendWeb.Endpoint,
-       url: [host: "localhost"],
+       url: [host: "thankful-misguided-diamondbackrattlesnake.gigalixirapp.com"],
        http: [port: 4000],
        secret_key_base: "bshRq5AtaiaDK+MX83KjZDQvCqHtoPMsg/51ne49KBOirR/YxQqSiIHmQG6OOSzK",
        render_errors: [view: BackendWeb.ErrorView, accepts: ~w(html json)],
