@@ -27,7 +27,10 @@ defmodule Bot.Consumer.Ready do
     "h" => Map.fetch!(@commands, "help"),
 
     "зфкен" => Map.fetch!(@commands, "party"),
+    # Английская эр
     "p" => Map.fetch!(@commands, "party"),
+    # Русская эр
+    "р" => Map.fetch!(@commands, "party"),
     "пати" => Map.fetch!(@commands, "party"),
     "поиск" => Map.fetch!(@commands, "party"),
 
