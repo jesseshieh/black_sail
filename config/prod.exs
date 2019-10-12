@@ -19,8 +19,10 @@ config :logger, level: :info
 
 # Configures the endpoint
 config :backend, BackendWeb.Endpoint,
-       url: [host: "thankful-misguided-diamondbackrattlesnake.gigalixirapp.com"],
-       http: [port: 4000],
+       http: [:inet6, port: System.get_env("PORT") || 4000],
+       url: [host: "thankful-misguided-diamondbackrattlesnake.gigalixirapp.com", port: 80],
        secret_key_base: System.get_env("SECRET_KEY_BASE"),
        render_errors: [view: BackendWeb.ErrorView, accepts: ~w(html json)],
-       pubsub: [name: Backend.PubSub, adapter: Phoenix.PubSub.PG2]
+       pubsub: [name: Backend.PubSub, adapter: Phoenix.PubSub.PG2],
+       cache_static_manifest: "priv/static/cache_manifest.json",
+       server: true
