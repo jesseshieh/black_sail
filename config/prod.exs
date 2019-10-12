@@ -24,7 +24,6 @@ config :backend, BackendWeb.Endpoint,
        secret_key_base: System.get_env("SECRET_KEY_BASE"),
        render_errors: [view: BackendWeb.ErrorView, accepts: ~w(html json)],
        pubsub: [name: Backend.PubSub, adapter: Phoenix.PubSub.PG2],
-       cache_static_manifest: "priv/static/cache_manifest.json",
        server: true
 
 
