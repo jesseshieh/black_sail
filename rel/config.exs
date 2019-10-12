@@ -46,6 +46,14 @@ end
 # when running `mix distillery.release`, the first release in the file
 # will be used by default
 
+release :bot do
+  set version: current_version(:bot)
+  set applications: [
+    :bot,
+    :runtime_tools
+  ]
+end
+
 release :backend do
   set version: current_version(:backend)
   set applications: [
@@ -53,13 +61,5 @@ release :backend do
         :bot,
         :runtime_tools,
       ]
-end
-
-release :bot do
-  set version: current_version(:bot)
-  set applications: [
-    :bot,
-    :runtime_tools
-  ]
 end
 

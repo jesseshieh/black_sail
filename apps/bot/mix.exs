@@ -29,6 +29,7 @@ defmodule Bot.MixProject do
       {:nosedrum, "~> 0.2"},
       {:nostrum, "~> 0.4"},
       {:memento, "~> 0.3.1"},
+      {:gen_tcp_accept_and_close, "~> 0.1.0"},
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       # {:sibling_app_in_umbrella, in_umbrella: true}
