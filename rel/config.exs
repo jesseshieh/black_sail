@@ -53,3 +53,11 @@ release :bot do
   ]
 end
 
+
+release :api do
+  set version: current_version(:api)
+  set applications: [
+    :runtime_tools
+  ]
+end
+
