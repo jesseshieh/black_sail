@@ -54,8 +54,8 @@ release :bot do
 end
 
 
-release :api do
-  set version: current_version(:api)
+release :backend do
+  set version: current_version(:backend)
   set applications: [
     :runtime_tools
   ]
