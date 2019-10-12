@@ -49,7 +49,7 @@ end
 release :bot do
   set version: current_version(:bot)
   set applications: [
-    :bot,
+    :backend,
     :runtime_tools
   ]
 end
