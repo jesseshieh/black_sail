@@ -27,3 +27,14 @@ config :backend, BackendWeb.Endpoint,
        cache_static_manifest: "priv/static/cache_manifest.json",
        server: true
 
+
+config :nostrum,
+       token: System.get_env("BOT_TOKEN"),
+       num_shards: :auto
+
+config :nosedrum,
+       prefix: System.get_env("BOT_PREFIX") || "!"
+
+config :mnesia,
+       dir: '.mnesia/#{Mix.env}/#{node()}'
+config :phoenix, :json_library, Jason
