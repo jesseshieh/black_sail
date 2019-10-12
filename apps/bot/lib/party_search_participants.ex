@@ -71,7 +71,9 @@ defmodule Bot.PartySearchParticipants do
       rows = Memento.Query.select(Bot.PartySearchParticipants, {:==, :voice_channel_id, voice_channel_id})
       Enum.each(rows, fn row ->
         Memento.Query.delete(Bot.PartySearchParticipants, row.message_id)
-        Api.delete_message(row.text_channel_id, row.message_id)
+        Task.start(fn ->
+          Api.delete_message(row.text_channel_id, row.message_id)
+        end)
       end)
     end)
   end

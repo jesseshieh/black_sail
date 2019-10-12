@@ -23,10 +23,12 @@ defmodule Bot.Consumer do
     end
   end
 
+  @impl true
   def handle_event({:READY, data, _ws_state}) do
     Ready.handle(data)
   end
 
+  @impl true
   def handle_event({:VOICE_STATE_UPDATE, %{ channel_id: channel_id, user_id: user_id, guild_id: guild_id }, _ws_state}) do
     %Bot.VoiceMembers{ channel_id: channel_id, user_id: user_id, guild_id: guild_id }
     |> VoiceStateUpdate.handle

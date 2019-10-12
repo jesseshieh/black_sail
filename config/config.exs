@@ -26,6 +26,13 @@ config :nosedrum,
 
 config :mnesia,
   dir: '.mnesia/#{Mix.env}/#{node()}'
+
+config :bot,
+  faceit_api_key: System.get_env("FACEIT_API_KEY"),
+  redis_host: System.get_env("REDIS_HOST"),
+  redis_port: System.get_env("REDIS_PORT"),
+  redis_password: System.get_env("REDIS_PASSWORD")
+
 config :phoenix, :json_library, Jason
 
 # Configures the endpoint

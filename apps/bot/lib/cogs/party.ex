@@ -32,25 +32,28 @@ defmodule Bot.Cogs.Party do
   @impl true
   def usage,
       do: [
-        "!#{@command} <comment>",
+        "!#{@command} ваш_комментарий",
       ]
 
   @impl true
   def description,
       do: """
+      ```
       Отправляет сообщение с поиском пати.
-      Пример ниже.
       Если вы находитесь не в голосовом чате, бот создаст для вас канал на #{@user_limit} человек.
 
       Команда: !#{@command} Предпочитаю играть с любителями народных песен
 
-      Выведет сообщение:
+      Выведет Embed-сообщение:
 
-      ```
       Поиск Competitive FaceIT
       @username Gold Nova I KDA 2
 
-      Comment: Предпочитаю играть с любителями народных песен
+      Коммент: Предпочитаю играть с любителями народных песен
+
+#{Enum.reduce(usage, "Примеры использования:", fn text, acc -> acc <> "\n" <> text end)}
+
+        Работает только в канале #{@search_channel}
       ```
       """
 
@@ -68,11 +71,17 @@ defmodule Bot.Cogs.Party do
       {:ok, %{ id: channel_id }} ->
         unless msg.channel_id !== channel_id do
           unless is_in_voice_channel?(msg.author.id) do
-            delete_empty_voice_channels_with_same_name(channel_name_for_member, guild_id)
+            Task.start(fn ->
+              delete_empty_voice_channels_with_same_name(channel_name_for_member, guild_id)
+            end)
             %Channel{} = channel = create_voice_channel_for_member(guild_id, usernameWithDiscriminator)
             invite = Api.create_channel_invite!(channel.id, max_age: 1200)
-            Api.create_message(channel_id, content: "<@#{msg.author.id}>", embed: message_if_not_in_voice_channel(msg.author.id, invite))
-            Api.delete_message(channel_id, msg.id)
+            Task.start(fn ->
+              Api.create_message(channel_id, content: "<@#{msg.author.id}>", embed: message_if_not_in_voice_channel(msg.author.id, invite))
+            end)
+            Task.start(fn ->
+              Api.delete_message(channel_id, msg.id)
+            end)
           else
             voice_channel_id = Bot.VoiceMembers.get_channel_id_by_user_id(msg.author.id)
             unless voice_channel_id == nil do
@@ -89,8 +98,12 @@ defmodule Bot.Cogs.Party do
               })
               Api.delete_message!(channel_id, msg.id)
             else
-              reply = Api.create_message!(channel_id, "<@#{msg.author.id}>, пожалуйста, перейдите в свободный голосовой канал или введите команду заново")
-              Api.delete_message!(channel_id, msg.id)
+              Task.start(fn ->
+                Api.create_message!(channel_id, "<@#{msg.author.id}>, пожалуйста, перейдите в свободный голосовой канал или введите команду заново")
+              end)
+              Task.start(fn ->
+                Api.delete_message!(channel_id, msg.id)
+              end)
             end
           end
         end
@@ -137,7 +150,6 @@ defmodule Bot.Cogs.Party do
   end
 
   def extract_comment(content) do
-    IO.inspect(content, label: "Content is")
     case content do
       "!#{@command} " <> comment -> "Комментарий: #{comment}\n"
       _ -> ""

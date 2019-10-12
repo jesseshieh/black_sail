@@ -1,6 +1,9 @@
 defmodule Bot.Helpers do
 
-  alias Nostrum.{Api}
+  alias Nostrum.{
+    Api,
+    Struct.User,
+  }
   alias Nosedrum.{Converters}
 
   @errors_channel "errors"
@@ -32,6 +35,13 @@ defmodule Bot.Helpers do
       end)
       |> Enum.map(fn ch -> Api.delete_channel(ch.id, "Deleting game channel without parent") end)
     else err -> IO.inspect(err, label: "Cannot delete game channels without parent")
+    end
+  end
+
+  def get_user_avatar_by_user_id(user_id) do
+    case Nostrum.Cache.UserCache.get(user_id) do
+      {:ok, %User{} = user} -> User.avatar_url(user, "gif")
+      _ -> nil
     end
   end
 end

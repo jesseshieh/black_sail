@@ -9,9 +9,15 @@ defmodule Bot.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Redix,
+        host: Application.fetch_env!(:bot, :redis_host),
+        port: String.to_integer(Application.fetch_env!(:bot, :redis_port)),
+        password: Application.fetch_env!(:bot, :redis_password),
+        name: :redix
+      },
       Nosedrum.Storage.ETS,
       # Supervises Discord Gateway event consumers.
-      Bot.ConsumerSupervisor
+      Bot.ConsumerSupervisor,
     ]
     Memento.Table.create(Bot.VoiceMembers)
     Memento.Table.create(Bot.PartySearchParticipants)
