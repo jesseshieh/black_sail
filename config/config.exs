@@ -18,7 +18,7 @@ import Config
 #
 
 config :nostrum,
-  token: System.get_env("BOT_TOKEN"),
+  token: "NjMxODk4OTg3ODMzNTg5Nzcw.XaEV6A.IA2e0oB-barOtyb2muGwlN8FiTs",
   num_shards: :auto
 
 config :nosedrum,
@@ -26,15 +26,6 @@ config :nosedrum,
 
 config :mnesia,
   dir: '.mnesia/#{Mix.env}/#{node()}'
-
-config :api, Api.Server,
-       adapter: Plug.Cowboy,
-       plug: Api.API,
-       scheme: :http,
-       port: 8880
-
-config :api,
-       maru_servers: [Api.Server]
 config :phoenix, :json_library, Jason
 
 # Configures the endpoint
