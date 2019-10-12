@@ -50,6 +50,8 @@ release :backend do
   set version: current_version(:backend)
   set applications: [
         :backend,
+        :bot,
+        :runtime_tools,
       ]
 end
 
