@@ -86,7 +86,7 @@ defmodule Bot.FaceIT do
     end
   end
 
-  defp put_cs_go_stats(embed, player_id, user_id, guild_id) do
+  defp put_cs_go_stats(%Embed{} = embed, player_id, user_id, guild_id) do
     case get("/players/#{player_id}/stats/#{@game_id}") do
       {:ok, %{
         status_code: 200,
