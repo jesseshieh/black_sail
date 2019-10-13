@@ -8,6 +8,8 @@ defmodule Bot.Application do
 
   @impl true
   def start(_type, _args) do
+    Application.fetch_env!(:bot, :redis_host)
+    |> IO.inspect(label: "REDIS_HOST from application fetch_env")
     children = [
       {Redix,
         host: Application.fetch_env!(:bot, :redis_host),
