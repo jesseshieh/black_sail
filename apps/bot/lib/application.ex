@@ -10,6 +10,12 @@ defmodule Bot.Application do
   def start(_type, _args) do
     Application.fetch_env!(:bot, :redis_host)
     |> IO.inspect(label: "REDIS_HOST from application fetch_env")
+    Application.fetch_env!(:bot, :redis_port)
+    |> IO.inspect(label: "REDIS_PORT from application fetch_env")
+    Application.fetch_env!(:bot, :faceit_api_key)
+    |> IO.inspect(label: "face it api key from application fetch_env")
+    Application.fetch_env!(:bot, :redis_password)
+    |> IO.inspect(label: "Redis pass")
     children = [
       {Redix,
         host: Application.fetch_env!(:bot, :redis_host),
