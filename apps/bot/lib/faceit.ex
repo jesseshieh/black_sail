@@ -106,9 +106,11 @@ defmodule Bot.FaceIT do
         |> put_field("Винрейт", win_rate <> "%")
         |> put_field("Побед/Всего игр", wins <> "/" <> total_games)
         |> put_field("Средний процент хедшотов", headshots_percents <> "%")
-        {:ok, %{ id: win_rate_role_id }} = Register.assign_role_for_win_rate(win_rate, guild_id)
-        {:ok, %{ id: kdr_role_id }} = Register.assign_role_for_kdr(average_kdr, guild_id)
-        Api.modify_guild_member!(guild_id, user_id, roles: [win_rate_role_id, kdr_role_id])
+        Task.start(fn ->
+          {:ok, %{ id: win_rate_role_id }} = Register.assign_role_for_win_rate(win_rate, guild_id)
+          {:ok, %{ id: kdr_role_id }} = Register.assign_role_for_kdr(average_kdr, guild_id)
+          Api.modify_guild_member!(guild_id, user_id, roles: [win_rate_role_id, kdr_role_id])
+        end)
         embed = if win_streak != "0", do: put_description(embed, "ВИНСТРИК " <> win_streak <> " ИГР"), else: embed
       d ->
         embed
