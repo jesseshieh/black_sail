@@ -109,7 +109,7 @@ defmodule Bot.Cogs.Register do
       {:min, min} = List.keyfind(role_data, :min, 0)
       {:max, max} = List.keyfind(role_data, :max, 0)
       {value, _} = Float.parse(kdr)
-      value > min and value < max
+      value >= min and value <= max
     end)
     {:ok, role} = Converters.to_role(role_name, guild_id)
   end
