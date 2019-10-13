@@ -53,4 +53,10 @@ release :bot do
     :bot,
     :runtime_tools
   ]
+  set config_providers: [
+    {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "rel/etc/config.exs", "etc/config.exs"}
+  ]
 end
