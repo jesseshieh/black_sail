@@ -50,7 +50,7 @@ release :bot do
   set version: current_version(:bot)
   set applications: [
     backend: :permanent,
-    bot: :transient,
+    bot: :temporary,
     runtime_tools: :temporary
   ]
   set config_providers: [
