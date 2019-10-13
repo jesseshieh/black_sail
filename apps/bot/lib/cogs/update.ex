@@ -12,6 +12,7 @@ defmodule Bot.Cogs.Update do
     PartySearchParticipants,
     Cogs.Register,
     }
+  alias Bot.Predicates, as: CustomPredicates
   alias Nosedrum.{
     Predicates,
     Converters,
@@ -54,13 +55,21 @@ defmodule Bot.Cogs.Update do
   def command, do: @command
 
   @impl true
-  def command(%{ guild_id: guild_id, author: %{ id: user_id }, id: msg_id } = msg, _args) do
-    IO.inspect(msg, label: "Message")
+  def command(msg, args) do
+    case CustomPredicates.is_stats_channel?(msg) do
+      {:ok, _msg} -> execute_command(msg, args)
+      {:error, reason} -> Helpers.reply_and_delete_message(msg.channel_id, reason)
+    end
+  end
+
+  @impl true
+  def execute_command(%{ guild_id: guild_id, author: %{ id: user_id }, id: msg_id } = msg, _args) do
+#    IO.inspect(msg, label: "Message")
     msg_channel_id = msg.channel_id
     case Helpers.create_channel_if_not_exists(@stats_channel, guild_id) do
       {:ok, %{ id: channel_id }} when channel_id == msg_channel_id ->
         reply = Api.create_message!(channel_id, "Обновляю данные...")
-        Bot.FaceIT.update_user(user_id, channel_id)
+        Bot.FaceIT.update_user(user_id, channel_id, guild_id)
         Api.delete_message(channel_id, reply.id)
         Api.delete_message(channel_id, msg_id)
       {:error, %{ response: error_message }} ->
@@ -72,11 +81,6 @@ defmodule Bot.Cogs.Update do
       _ ->
         IO.puts("Unknown error when creating or finding channel #{@stats_channel}")
     end
-  end
-
-  def command(msg, _args) do
-    msg
-    |> IO.inspect(label: "Unhandled message")
   end
 
   def get_nickname_from_message(content) do

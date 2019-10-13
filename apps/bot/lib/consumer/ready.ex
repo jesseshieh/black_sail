@@ -5,6 +5,8 @@ defmodule Bot.Consumer.Ready do
   alias Bot.{Cogs, Helpers}
   alias Nostrum.Api
   alias Nosedrum.{Converters}
+  alias Cogs.Party
+  alias Cogs.Register
 
   @infraction_group %{
     "detail" => Cogs.Infraction.Detail,
@@ -53,9 +55,34 @@ defmodule Bot.Consumer.Ready do
   def handle(data) do
     :ok = load_commands()
     IO.puts("⚡ Logged in and ready, seeing `#{length(data.guilds)}` guilds.")
-    Enum.each(data.guilds, fn %{ id: guild_id } ->
+    data.guilds
+    |> Enum.map(fn %{ id: guild_id } = guild -> Map.put(guild, :channels, Api.get_guild_channels!(guild_id)) end)
+    |> Enum.each(fn %{ id: guild_id } ->
       IO.inspect(guild_id, label: "Deleting guild game channels")
-      Helpers.delete_game_channels_without_parent(guild_id)
+      Task.start(fn ->
+        {:ok, role} = Converters.to_role("@everyone", guild_id)
+        opts = [
+          permissions: Nostrum.Permission.to_bitset([
+            :attach_files,
+            :send_messages,
+            :read_message_history,
+            :use_external_emojis,
+            :view_channel,
+            :add_reactions,
+            :speak,
+            :connect,
+          ]),
+        ]
+        Api.modify_guild_role(guild_id, role.id, opts)
+      end)
+      Task.start(fn ->
+        Party.recreate_channel(guild_id)
+        Register.recreate_channel(guild_id)
+        Helpers.ensure_rules_message_exists(guild_id)
+      end)
+#      Task.start(fn -> Register.recreate_roles(guild_id) end)
+      Register.recreate_roles(guild_id)
+      Task.start(fn -> Helpers.delete_game_channels_without_parent(guild_id) end)
     end)
     :ok = Api.update_status(:online, "you | !help", 3)
   end

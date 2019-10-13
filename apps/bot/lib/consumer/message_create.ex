@@ -8,7 +8,6 @@ defmodule Bot.Consumer.MessageCreate do
 
   @spec handle(Message.t()) :: :ok | nil
   def handle(msg) do
-    msg
     CommandInvoker.handle_message(msg, @nosedrum_storage_implementation)
   end
 end

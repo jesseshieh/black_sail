@@ -18,6 +18,7 @@ defmodule Bot.Cogs.Party do
     Predicates,
     Converters,
   }
+  alias Bot.Predicates, as: CustomPredicates
   alias Nostrum.Api
   alias Nostrum.Struct.{
     Embed,
@@ -27,6 +28,7 @@ defmodule Bot.Cogs.Party do
   }
   alias Nostrum.Cache.GuildCache
   alias Guild.Member
+  alias Nostrum.Permission
   import Embed
 
   @impl true
@@ -61,10 +63,32 @@ defmodule Bot.Cogs.Party do
   def predicates, do: [&Predicates.guild_only/1]
 
   def command, do: @command
+  def search_channel, do: @search_channel
 
   @impl true
-  def command(%{ guild_id: guild_id } = msg, _args) do
-    IO.inspect(msg, label: "Message")
+  def command(msg, args) do
+    case CustomPredicates.is_party_search_channel?(msg) do
+      {:ok, _msg} -> execute_command(msg, args)
+      {:error, reason} -> Helpers.reply_and_delete_message(msg.channel_id, reason)
+    end
+  end
+
+  def recreate_channel(guild_id) do
+    Helpers.delete_channel_if_exists(@search_channel, guild_id)
+    Task.start(fn ->
+      {:ok, role} = Converters.to_role("@everyone", guild_id)
+      opts = [
+        name: @search_channel,
+        type: 0,
+        permission_overwrites: Helpers.special_channel_permission_overwrites(role.id)
+      ]
+      Api.create_guild_channel(guild_id, opts)
+    end)
+  end
+
+  @impl true
+  def execute_command(%{ guild_id: guild_id } = msg, _args) do
+#    IO.inspect(msg, label: "Message")
     usernameWithDiscriminator = msg.author.username <> "#" <> msg.author.discriminator
     channel_name_for_member = get_channel_name_for_member(usernameWithDiscriminator)
     case Helpers.create_channel_if_not_exists(@search_channel, guild_id) do
@@ -106,6 +130,8 @@ defmodule Bot.Cogs.Party do
               end)
             end
           end
+        else
+          Api.delete_message(msg.channel_id, msg.id)
         end
       {:error, %{ response: error_message }} ->
         error_message
@@ -116,11 +142,6 @@ defmodule Bot.Cogs.Party do
       _ ->
         IO.puts("Unknown error when creating or finding channel #{@search_channel}")
     end
-  end
-
-  def command(msg, _args) do
-    msg
-    |> IO.inspect(label: "Unhandled message")
   end
 
   def create_party_message(%{ guild_id: guild_id } = msg, %Invite{ channel: %{ id: channel_id } } = invite) do

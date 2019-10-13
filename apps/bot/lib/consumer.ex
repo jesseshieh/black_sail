@@ -22,6 +22,12 @@ defmodule Bot.Consumer do
       MessageCreate.handle(msg)
     end
   end
+  @impl true
+  def handle_event({:MESSAGE_CREATE, %{ content: "" <> _content } = msg, _ws_state}) do
+    unless msg.author.bot do
+      Bot.Helpers.delete_casual_message_from_special_channel(msg)
+    end
+  end
 
   @impl true
   def handle_event({:READY, data, _ws_state}) do
