@@ -49,8 +49,8 @@ end
 release :bot do
   set version: current_version(:bot)
   set applications: [
-    :bot,
     :backend,
+    :bot,
     :runtime_tools
   ]
   set config_providers: [
