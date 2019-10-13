@@ -49,9 +49,9 @@ end
 release :bot do
   set version: current_version(:bot)
   set applications: [
-    :backend,
-    :bot,
-    :runtime_tools
+    backend: :permanent,
+    bot: :transient,
+    runtime_tools: :temporary
   ]
   set config_providers: [
     {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
